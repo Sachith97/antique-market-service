@@ -19,6 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Sachith Harshamal
@@ -60,41 +61,50 @@ public class MarketRequestServiceImpl implements MarketRequestService {
 
     @Override
     public CommonResponse createMarketRequest(MarketRequestDao marketRequest) {
-        if (!ValidationUtil.stringHasContent(marketRequest.getUserWalletHash()) ||
-                !ValidationUtil.stringHasContent(marketRequest.getArtifactName()) ||
-                !ValidationUtil.stringHasContent(marketRequest.getArtifactDescription()) ||
-                !ValidationUtil.stringHasContent(marketRequest.getImageOneAddress()) ||
-                !ValidationUtil.stringHasContent(marketRequest.getImageTwoAddress()) ||
-                !ValidationUtil.stringHasContent(marketRequest.getImageThreeAddress()) ||
-                !ValidationUtil.stringHasContent(marketRequest.getVideoAddress())) {
+        if (!allFieldsHaveContent(marketRequest)) {
             return new CommonResponse(Response.NOT_FOUND);
         }
         String requestHash = generateHash(marketRequest);
-        Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByRequestHash(requestHash);
-        if (dbRequest.isPresent()) {
+        if (marketRequestRepository.findByRequestHash(requestHash).isPresent()) {
             return CommonResponse.builder()
                     .isOk(Boolean.FALSE)
                     .responseCode(111)
                     .responseMessage("Request already available")
                     .build();
         }
-        this.marketRequestRepository.save(
-                MarketRequest.builder()
-                        .userWalletHash(marketRequest.getUserWalletHash())
-                        .artifactName(marketRequest.getArtifactName())
-                        .artifactDescription(marketRequest.getArtifactDescription())
-                        .imageOneAddress(marketRequest.getImageOneAddress())
-                        .imageTwoAddress(marketRequest.getImageTwoAddress())
-                        .imageThreeAddress(marketRequest.getImageThreeAddress())
-                        .imageFourAddress(marketRequest.getImageFourAddress())
-                        .imageFiveAddress(marketRequest.getImageFiveAddress())
-                        .videoAddress(marketRequest.getVideoAddress())
-                        .approvalStatus(ApprovalStatus.PENDING)
-                        .requestHash(requestHash)
-                        .build()
-        );
+        MarketRequest newMarketRequest = convertToMarketRequest(marketRequest, requestHash);
+        marketRequestRepository.save(newMarketRequest);
         return new CommonResponse(Response.SUCCESS, requestHash);
     }
+
+    private boolean allFieldsHaveContent(MarketRequestDao marketRequest) {
+        return Stream.of(
+                marketRequest.getUserWalletHash(),
+                marketRequest.getArtifactName(),
+                marketRequest.getArtifactDescription(),
+                marketRequest.getImageOneAddress(),
+                marketRequest.getImageTwoAddress(),
+                marketRequest.getImageThreeAddress(),
+                marketRequest.getVideoAddress()
+        ).allMatch(ValidationUtil::stringHasContent);
+    }
+
+    private MarketRequest convertToMarketRequest(MarketRequestDao marketRequestDao, String requestHash) {
+        return MarketRequest.builder()
+                .userWalletHash(marketRequestDao.getUserWalletHash())
+                .artifactName(marketRequestDao.getArtifactName())
+                .artifactDescription(marketRequestDao.getArtifactDescription())
+                .imageOneAddress(marketRequestDao.getImageOneAddress())
+                .imageTwoAddress(marketRequestDao.getImageTwoAddress())
+                .imageThreeAddress(marketRequestDao.getImageThreeAddress())
+                .imageFourAddress(marketRequestDao.getImageFourAddress())
+                .imageFiveAddress(marketRequestDao.getImageFiveAddress())
+                .videoAddress(marketRequestDao.getVideoAddress())
+                .approvalStatus(ApprovalStatus.PENDING)
+                .requestHash(requestHash)
+                .build();
+    }
+
 
     public static String generateHash(MarketRequestDao marketRequest) {
         String combinedString = marketRequest.getUserWalletHash() +
