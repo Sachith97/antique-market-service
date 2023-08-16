@@ -1,0 +1,11 @@
+${AnsiColor.MAGENTA}
+ .d8b.  d8b   db d888888b d888888b  .d88b.  db    db d88888b        .88b  d88.  .d8b.  d8888b. db   dD d88888b d888888b        .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b
+d8' `8b 888o  88 `~~88~~'   `88'   .8P  Y8. 88    88 88'            88'YbdP`88 d8' `8b 88  `8D 88 ,8P' 88'     `~~88~~'        88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'
+88ooo88 88V8o 88    88       88    88    88 88    88 88ooooo        88  88  88 88ooo88 88oobY' 88,8P   88ooooo    88           `8bo.   88ooooo 88oobY' Y8    8P    88    8P      88ooooo
+88~~~88 88 V8o88    88       88    88    88 88    88 88~~~~~ C8888D 88  88  88 88~~~88 88`8b   88`8b   88~~~~~    88    C8888D   `Y8b. 88~~~~~ 88`8b   `8b  d8'    88    8b      88~~~~~
+88   88 88  V888    88      .88.   `8P  d8' 88b  d88 88.            88  88  88 88   88 88 `88. 88 `88. 88.        88           db   8D 88.     88 `88.  `8bd8'    .88.   Y8b  d8 88.
+YP   YP VP   V8P    YP    Y888888P  `Y88'Y8 ~Y8888P' Y88888P        YP  YP  YP YP   YP 88   YD YP   YD Y88888P    YP           `8888Y' Y88888P 88   YD    YP    Y888888P  `Y88P' Y88888P
+
+${AnsiColor.RED} Spring Boot: ${spring-boot.formatted-version}
+${AnsiColor.RED} Java: ${java.version}
+${AnsiColor.DEFAULT}
