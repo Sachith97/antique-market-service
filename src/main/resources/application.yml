@@ -21,6 +21,6 @@ logging:
 
 # server level configurations
 server:
-  port: 8082
+  port: 8080
   servlet:
     context-path: /antique-market-service
