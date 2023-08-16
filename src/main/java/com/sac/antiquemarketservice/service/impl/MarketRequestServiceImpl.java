@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author Sachith Harshamal
@@ -31,6 +33,29 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     public MarketRequestServiceImpl(MarketRequestRepository marketRequestRepository, UserService userService) {
         this.marketRequestRepository = marketRequestRepository;
         this.userService = userService;
+    }
+
+    @Override
+    public CommonResponse getPendingMarketRequestList() {
+        List<MarketRequestDao> responseList = marketRequestRepository.findByApprovalStatus(ApprovalStatus.PENDING).stream()
+                .map(this::migrateToResponse)
+                .collect(Collectors.toList());
+        return new CommonResponse(Response.SUCCESS, responseList);
+    }
+
+    private MarketRequestDao migrateToResponse(MarketRequest marketRequest) {
+        return MarketRequestDao.builder()
+                .userWalletHash(marketRequest.getUserWalletHash())
+                .artifactName(marketRequest.getArtifactName())
+                .artifactDescription(marketRequest.getArtifactDescription())
+                .imageOneAddress(marketRequest.getImageOneAddress())
+                .imageTwoAddress(marketRequest.getImageTwoAddress())
+                .imageThreeAddress(marketRequest.getImageThreeAddress())
+                .imageFourAddress(marketRequest.getImageFourAddress())
+                .imageFiveAddress(marketRequest.getImageFiveAddress())
+                .videoAddress(marketRequest.getVideoAddress())
+                .requestHash(marketRequest.getRequestHash())
+                .build();
     }
 
     @Override

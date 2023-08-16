@@ -20,6 +20,11 @@ public class MarketRequestController {
         this.marketRequestService = marketRequestService;
     }
 
+    @GetMapping(path = "/", produces = {"application/json"})
+    public CommonResponse getPendingMarketRequestList() {
+        return marketRequestService.getPendingMarketRequestList();
+    }
+
     @PostMapping(path = "/create", produces = {"application/json"}, consumes = {"application/json"})
     public CommonResponse createMarketRequest(@RequestBody MarketRequestDao marketRequest) {
         return marketRequestService.createMarketRequest(marketRequest);
