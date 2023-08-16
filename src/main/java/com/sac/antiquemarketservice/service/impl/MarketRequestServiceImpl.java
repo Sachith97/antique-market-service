@@ -55,6 +55,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
                 .imageFourAddress(marketRequest.getImageFourAddress())
                 .imageFiveAddress(marketRequest.getImageFiveAddress())
                 .videoAddress(marketRequest.getVideoAddress())
+                .approvedStatus(marketRequest.getApprovalStatus().getName())
                 .requestHash(marketRequest.getRequestHash())
                 .build();
     }
