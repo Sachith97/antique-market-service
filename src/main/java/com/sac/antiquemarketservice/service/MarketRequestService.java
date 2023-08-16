@@ -10,4 +10,6 @@ import com.sac.antiquemarketservice.exception.CommonResponse;
 public interface MarketRequestService {
 
     CommonResponse createMarketRequest(MarketRequestDao marketRequest);
+
+    CommonResponse approveMarketRequest(MarketRequestDao marketRequest);
 }

@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface UserService {
 
     Optional<User> findUserByUsername(String username);
+
+    Optional<User> getLoggedInUser();
 }

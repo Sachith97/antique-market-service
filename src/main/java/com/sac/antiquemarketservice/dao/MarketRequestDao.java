@@ -13,7 +13,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class MarketRequestDao {
 
-    private Long id;
     private String userWalletHash;
     private String artifactName;
     private String artifactDescription;
@@ -24,4 +23,5 @@ public class MarketRequestDao {
     private String imageFiveAddress;
     private String videoAddress;
     private String approvedStatus;
+    private String requestHash;
 }

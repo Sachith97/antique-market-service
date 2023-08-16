@@ -24,4 +24,9 @@ public class MarketRequestController {
     public CommonResponse createMarketRequest(@RequestBody MarketRequestDao marketRequest) {
         return marketRequestService.createMarketRequest(marketRequest);
     }
+
+    @PostMapping(path = "/approve", produces = {"application/json"}, consumes = {"application/json"})
+    public CommonResponse approveMarketRequest(@RequestBody MarketRequestDao marketRequest) {
+        return marketRequestService.approveMarketRequest(marketRequest);
+    }
 }

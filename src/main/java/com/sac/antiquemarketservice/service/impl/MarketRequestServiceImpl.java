@@ -3,16 +3,20 @@ package com.sac.antiquemarketservice.service.impl;
 import com.sac.antiquemarketservice.dao.MarketRequestDao;
 import com.sac.antiquemarketservice.enums.ApprovalStatus;
 import com.sac.antiquemarketservice.enums.Response;
+import com.sac.antiquemarketservice.enums.UserRole;
 import com.sac.antiquemarketservice.exception.CommonResponse;
 import com.sac.antiquemarketservice.model.MarketRequest;
+import com.sac.antiquemarketservice.model.User;
 import com.sac.antiquemarketservice.repository.MarketRequestRepository;
 import com.sac.antiquemarketservice.service.MarketRequestService;
+import com.sac.antiquemarketservice.service.UserService;
 import com.sac.antiquemarketservice.util.ValidationUtil;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 /**
  * @author Sachith Harshamal
@@ -22,9 +26,11 @@ import java.security.NoSuchAlgorithmException;
 public class MarketRequestServiceImpl implements MarketRequestService {
 
     private final MarketRequestRepository marketRequestRepository;
+    private final UserService userService;
 
-    public MarketRequestServiceImpl(MarketRequestRepository marketRequestRepository) {
+    public MarketRequestServiceImpl(MarketRequestRepository marketRequestRepository, UserService userService) {
         this.marketRequestRepository = marketRequestRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -39,6 +45,14 @@ public class MarketRequestServiceImpl implements MarketRequestService {
             return new CommonResponse(Response.NOT_FOUND);
         }
         String requestHash = generateHash(marketRequest);
+        Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByRequestHash(requestHash);
+        if (dbRequest.isPresent()) {
+            return CommonResponse.builder()
+                    .isOk(Boolean.FALSE)
+                    .responseCode(111)
+                    .responseMessage("Request already available")
+                    .build();
+        }
         this.marketRequestRepository.save(
                 MarketRequest.builder()
                         .userWalletHash(marketRequest.getUserWalletHash())
@@ -84,5 +98,21 @@ public class MarketRequestServiceImpl implements MarketRequestService {
             result.append(String.format("%02x", b));
         }
         return result.toString();
+    }
+
+    @Override
+    public CommonResponse approveMarketRequest(MarketRequestDao marketRequest) {
+        Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByRequestHash(marketRequest.getRequestHash());
+        if (!dbRequest.isPresent()) {
+            return new CommonResponse(Response.NOT_FOUND);
+        }
+        Optional<User> loggedInUser = this.userService.getLoggedInUser();
+        if (!loggedInUser.isPresent() || !loggedInUser.get().getRole().equals(UserRole.APPROVER.name())) {
+            return new CommonResponse(Response.FORBIDDEN);
+        }
+        dbRequest.get().setApprovalStatus(ApprovalStatus.APPROVED);
+        dbRequest.get().setApprovedUser(loggedInUser.get());
+        this.marketRequestRepository.save(dbRequest.get());
+        return new CommonResponse(Response.SUCCESS);
     }
 }

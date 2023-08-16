@@ -11,6 +11,7 @@ public enum Response {
 
     SUCCESS(Boolean.TRUE, 200, "Success"),
     UNAUTHORIZED(Boolean.FALSE, 401, "Unauthorized request"),
+    FORBIDDEN(Boolean.FALSE, 403, "Forbidden request"),
     NOT_FOUND(Boolean.FALSE, 404, "Can not find request details"),
     FAILED(Boolean.FALSE, 500, "Failed with unhandled error");
 
