@@ -1,6 +1,7 @@
 package com.sac.antiquemarketservice.service.impl;
 
-import com.sac.antiquemarketservice.dao.MarketRequestDao;
+import com.sac.antiquemarketservice.dao.MarketCreateRequestDao;
+import com.sac.antiquemarketservice.dao.MarketCreateResponseDao;
 import com.sac.antiquemarketservice.enums.ApprovalStatus;
 import com.sac.antiquemarketservice.enums.Response;
 import com.sac.antiquemarketservice.enums.UserRole;
@@ -8,6 +9,7 @@ import com.sac.antiquemarketservice.exception.CommonResponse;
 import com.sac.antiquemarketservice.model.MarketRequest;
 import com.sac.antiquemarketservice.model.User;
 import com.sac.antiquemarketservice.repository.MarketRequestRepository;
+import com.sac.antiquemarketservice.service.FileHandleService;
 import com.sac.antiquemarketservice.service.MarketRequestService;
 import com.sac.antiquemarketservice.service.UserService;
 import com.sac.antiquemarketservice.util.ValidationUtil;
@@ -30,24 +32,26 @@ public class MarketRequestServiceImpl implements MarketRequestService {
 
     private final MarketRequestRepository marketRequestRepository;
     private final UserService userService;
+    private final FileHandleService fileHandleService;
 
-    public MarketRequestServiceImpl(MarketRequestRepository marketRequestRepository, UserService userService) {
+    public MarketRequestServiceImpl(MarketRequestRepository marketRequestRepository, UserService userService, FileHandleService fileHandleService) {
         this.marketRequestRepository = marketRequestRepository;
         this.userService = userService;
+        this.fileHandleService = fileHandleService;
     }
 
     @Override
     public CommonResponse getMarketRequestList(String status) {
         List<MarketRequest> requestList = status != null ? marketRequestRepository.findByApprovalStatus(ApprovalStatus.valueOf(status)) :
                 marketRequestRepository.findAll();
-        List<MarketRequestDao> responseList = requestList.stream()
+        List<MarketCreateResponseDao> responseList = requestList.stream()
                 .map(this::migrateToResponse)
                 .collect(Collectors.toList());
         return new CommonResponse(Response.SUCCESS, responseList);
     }
 
-    private MarketRequestDao migrateToResponse(MarketRequest marketRequest) {
-        return MarketRequestDao.builder()
+    private MarketCreateResponseDao migrateToResponse(MarketRequest marketRequest) {
+        return MarketCreateResponseDao.builder()
                 .userWalletHash(marketRequest.getUserWalletHash())
                 .artifactName(marketRequest.getArtifactName())
                 .artifactDescription(marketRequest.getArtifactDescription())
@@ -63,11 +67,12 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     }
 
     @Override
-    public CommonResponse createMarketRequest(MarketRequestDao marketRequest) {
+    public CommonResponse createMarketRequest(MarketCreateRequestDao marketRequest) {
         if (!allFieldsHaveContent(marketRequest)) {
             return new CommonResponse(Response.NOT_FOUND);
         }
-        String requestHash = generateHash(marketRequest);
+        MarketRequest newMarketRequest = convertToMarketRequest(marketRequest);
+        String requestHash = generateHash(newMarketRequest);
         if (marketRequestRepository.findByRequestHash(requestHash).isPresent()) {
             return CommonResponse.builder()
                     .isOk(Boolean.FALSE)
@@ -75,49 +80,46 @@ public class MarketRequestServiceImpl implements MarketRequestService {
                     .responseMessage("Request already available")
                     .build();
         }
-        MarketRequest newMarketRequest = convertToMarketRequest(marketRequest, requestHash);
+        newMarketRequest.setRequestHash(requestHash);
         marketRequestRepository.save(newMarketRequest);
         return new CommonResponse(Response.SUCCESS, requestHash);
     }
 
-    private boolean allFieldsHaveContent(MarketRequestDao marketRequest) {
+    private boolean allFieldsHaveContent(MarketCreateRequestDao marketRequest) {
         return Stream.of(
                 marketRequest.getUserWalletHash(),
                 marketRequest.getArtifactName(),
-                marketRequest.getArtifactDescription(),
-                marketRequest.getImageOneAddress(),
-                marketRequest.getImageTwoAddress(),
-                marketRequest.getImageThreeAddress(),
-                marketRequest.getVideoAddress()
-        ).allMatch(ValidationUtil::stringHasContent);
+                marketRequest.getArtifactDescription()
+        ).allMatch(ValidationUtil::stringHasContent) &&
+                marketRequest.getImageOne() != null && marketRequest.getImageTwo() != null &&
+                marketRequest.getImageThree() != null && marketRequest.getVideo() != null;
     }
 
-    private MarketRequest convertToMarketRequest(MarketRequestDao marketRequestDao, String requestHash) {
+    private MarketRequest convertToMarketRequest(MarketCreateRequestDao marketRequestDao) {
         return MarketRequest.builder()
                 .userWalletHash(marketRequestDao.getUserWalletHash())
                 .artifactName(marketRequestDao.getArtifactName())
                 .artifactDescription(marketRequestDao.getArtifactDescription())
-                .imageOneAddress(marketRequestDao.getImageOneAddress())
-                .imageTwoAddress(marketRequestDao.getImageTwoAddress())
-                .imageThreeAddress(marketRequestDao.getImageThreeAddress())
-                .imageFourAddress(marketRequestDao.getImageFourAddress())
-                .imageFiveAddress(marketRequestDao.getImageFiveAddress())
-                .videoAddress(marketRequestDao.getVideoAddress())
+                .imageOneAddress(fileHandleService.getFileURL(marketRequestDao.getImageOne()))
+                .imageTwoAddress(fileHandleService.getFileURL(marketRequestDao.getImageTwo()))
+                .imageThreeAddress(fileHandleService.getFileURL(marketRequestDao.getImageThree()))
+                .imageFourAddress(marketRequestDao.getImageFour() != null ? fileHandleService.getFileURL(marketRequestDao.getImageFour()) : null)
+                .imageFiveAddress(marketRequestDao.getImageFive() != null ? fileHandleService.getFileURL(marketRequestDao.getImageFive()) : null)
+                .videoAddress(fileHandleService.getFileURL(marketRequestDao.getVideo()))
                 .approvalStatus(ApprovalStatus.PENDING)
-                .requestHash(requestHash)
                 .build();
     }
 
 
-    public static String generateHash(MarketRequestDao marketRequest) {
+    public static String generateHash(MarketRequest marketRequest) {
         String combinedString = marketRequest.getUserWalletHash() +
                 marketRequest.getArtifactName() +
                 marketRequest.getArtifactDescription() +
                 marketRequest.getImageOneAddress() +
                 marketRequest.getImageTwoAddress() +
                 marketRequest.getImageThreeAddress() +
-                marketRequest.getImageFourAddress() +
-                marketRequest.getImageFiveAddress() +
+                (marketRequest.getImageFourAddress() != null ? marketRequest.getImageFourAddress() : "") +
+                (marketRequest.getImageFiveAddress() != null ? marketRequest.getImageFiveAddress() : "") +
                 marketRequest.getVideoAddress();
 
         try {
@@ -139,7 +141,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     }
 
     @Override
-    public CommonResponse approveMarketRequest(MarketRequestDao marketRequest) {
+    public CommonResponse approveMarketRequest(MarketCreateRequestDao marketRequest) {
         Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByRequestHash(marketRequest.getRequestHash());
         if (!dbRequest.isPresent()) {
             return new CommonResponse(Response.NOT_FOUND);

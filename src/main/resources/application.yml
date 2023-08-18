@@ -9,8 +9,8 @@ spring:
       ddl-auto: update
   servlet:
     multipart:
-      max-file-size: 5120KB
-      max-request-size: 5120KB
+      max-file-size: 102400KB
+      max-request-size: 102400KB
 
 logging:
   level:
@@ -24,3 +24,9 @@ server:
   port: 8080
   servlet:
     context-path: /antique-market-service
+  application:
+    path: http://127.0.0.1
+
+file:
+  upload:
+    path: C:/web/tmp/
