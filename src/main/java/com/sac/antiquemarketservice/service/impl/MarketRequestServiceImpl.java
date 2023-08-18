@@ -82,7 +82,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
         }
         newMarketRequest.setRequestHash(requestHash);
         marketRequestRepository.save(newMarketRequest);
-        return new CommonResponse(Response.SUCCESS, requestHash);
+        return new CommonResponse(Response.SUCCESS, migrateToResponse(newMarketRequest));
     }
 
     private boolean allFieldsHaveContent(MarketCreateRequestDao marketRequest) {
