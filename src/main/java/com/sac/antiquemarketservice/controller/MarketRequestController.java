@@ -20,8 +20,8 @@ public class MarketRequestController {
         this.marketRequestService = marketRequestService;
     }
 
-    @GetMapping(path = "/list/{status}", produces = {"application/json"})
-    public CommonResponse getMarketRequestList(@PathVariable("status") String status) {
+    @GetMapping(path = {"/list", "/list/{status}"}, produces = {"application/json"})
+    public CommonResponse getMarketRequestList(@PathVariable(required = false, name = "status") String status) {
         return marketRequestService.getMarketRequestList(status);
     }
 
