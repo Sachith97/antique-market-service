@@ -9,7 +9,7 @@ import com.sac.antiquemarketservice.exception.CommonResponse;
  */
 public interface MarketRequestService {
 
-    CommonResponse getPendingMarketRequestList();
+    CommonResponse getMarketRequestList(String status);
 
     CommonResponse createMarketRequest(MarketRequestDao marketRequest);
 

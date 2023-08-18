@@ -37,8 +37,8 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     }
 
     @Override
-    public CommonResponse getPendingMarketRequestList() {
-        List<MarketRequestDao> responseList = marketRequestRepository.findByApprovalStatus(ApprovalStatus.PENDING).stream()
+    public CommonResponse getMarketRequestList(String status) {
+        List<MarketRequestDao> responseList = marketRequestRepository.findByApprovalStatus(ApprovalStatus.valueOf(status)).stream()
                 .map(this::migrateToResponse)
                 .collect(Collectors.toList());
         return new CommonResponse(Response.SUCCESS, responseList);
