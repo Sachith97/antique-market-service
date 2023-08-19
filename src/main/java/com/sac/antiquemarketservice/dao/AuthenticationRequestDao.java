@@ -2,6 +2,7 @@ package com.sac.antiquemarketservice.dao;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Sachith Harshamal
@@ -9,6 +10,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthenticationRequestDao {
 
     private String username;

@@ -3,6 +3,7 @@ package com.sac.antiquemarketservice.dao;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @author Sachith Harshamal
@@ -11,6 +12,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class MarketRequestDao {
 
     private String userWalletHash;
