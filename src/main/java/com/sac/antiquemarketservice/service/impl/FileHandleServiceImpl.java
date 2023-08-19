@@ -7,6 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author Sachith Harshamal
@@ -30,11 +32,21 @@ public class FileHandleServiceImpl implements FileHandleService {
     @Override
     public String getFileURL(MultipartFile file) {
         try {
-            String fileName = file.getOriginalFilename();
+            String originalFileName = file.getOriginalFilename();
+            assert originalFileName != null;
+            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+
+            // Generate a new filename using the current datetime with milliseconds
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+            String fileName = now.format(formatter) + fileExtension;
+
             String filePath = FILE_UPLOAD_PATH + fileName;
             file.transferTo(new File(filePath));
+
             // return generated url
             return APP_PATH + ":" + SERVER_PORT + CONTEXT_PATH + "/files/" + fileName;
+
         } catch (IOException e) {
             e.printStackTrace();
             return null;
