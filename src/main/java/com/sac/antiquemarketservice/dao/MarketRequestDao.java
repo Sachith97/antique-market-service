@@ -25,5 +25,6 @@ public class MarketRequestDao {
     private String nftMarketAddress;
     private String nftTokenId;
     private String approvedStatus;
+    private String approvedDate;
     private String requestHash;
 }

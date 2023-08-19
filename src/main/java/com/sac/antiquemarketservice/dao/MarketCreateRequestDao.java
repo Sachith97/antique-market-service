@@ -23,6 +23,4 @@ public class MarketCreateRequestDao {
     private MultipartFile imageFour;
     private MultipartFile imageFive;
     private MultipartFile video;
-    private String approvedStatus;
-    private String requestHash;
 }

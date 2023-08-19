@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @author Sachith Harshamal
@@ -67,6 +68,9 @@ public class MarketRequest implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "APPROVAL_STATUS", nullable = false)
     private ApprovalStatus approvalStatus;
+
+    @Column(name = "APPROVED_DATE")
+    private LocalDateTime approvedDate;
 
     @ManyToOne
     @JoinColumn(name = "FK_APPROVED_USER")

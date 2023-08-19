@@ -12,12 +12,14 @@ import com.sac.antiquemarketservice.repository.MarketRequestRepository;
 import com.sac.antiquemarketservice.service.FileHandleService;
 import com.sac.antiquemarketservice.service.MarketRequestService;
 import com.sac.antiquemarketservice.service.UserService;
+import com.sac.antiquemarketservice.util.DateUtil;
 import com.sac.antiquemarketservice.util.ValidationUtil;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,6 +64,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
                 .imageFiveAddress(marketRequest.getImageFiveAddress())
                 .videoAddress(marketRequest.getVideoAddress())
                 .approvedStatus(marketRequest.getApprovalStatus().getName())
+                .approvedDate(marketRequest.getApprovedDate() != null ? DateUtil.getStringFormat(marketRequest.getApprovedDate()) : null)
                 .requestHash(marketRequest.getRequestHash())
                 .build();
     }
@@ -151,6 +154,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
             return new CommonResponse(Response.FORBIDDEN);
         }
         dbRequest.get().setApprovalStatus(ApprovalStatus.APPROVED);
+        dbRequest.get().setApprovedDate(LocalDateTime.now());
         dbRequest.get().setApprovedUser(loggedInUser.get());
         this.marketRequestRepository.save(dbRequest.get());
         return new CommonResponse(Response.SUCCESS);
