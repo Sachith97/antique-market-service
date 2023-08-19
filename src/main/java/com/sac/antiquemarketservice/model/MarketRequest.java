@@ -58,6 +58,12 @@ public class MarketRequest implements Serializable {
     @Column(name = "REQUEST_HASH", length = 1000)
     private String requestHash;
 
+    @Column(name = "NFT_MARKET_ADD", length = 1000)
+    private String nftMarketAddress;
+
+    @Column(name = "NFT_TOKEN_ID")
+    private String nftTokenId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "APPROVAL_STATUS", nullable = false)
     private ApprovalStatus approvalStatus;

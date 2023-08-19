@@ -1,6 +1,7 @@
 package com.sac.antiquemarketservice.controller;
 
 import com.sac.antiquemarketservice.dao.MarketCreateRequestDao;
+import com.sac.antiquemarketservice.dao.MarketRequestDao;
 import com.sac.antiquemarketservice.exception.CommonResponse;
 import com.sac.antiquemarketservice.service.MarketRequestService;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +53,12 @@ public class MarketRequestController {
     }
 
     @PostMapping(path = "/approve", produces = {"application/json"}, consumes = {"application/json"})
-    public CommonResponse approveMarketRequest(@RequestBody MarketCreateRequestDao marketRequest) {
+    public CommonResponse approveMarketRequest(@RequestBody MarketRequestDao marketRequest) {
         return marketRequestService.approveMarketRequest(marketRequest);
+    }
+
+    @PostMapping(path = "/save-nft", produces = {"application/json"}, consumes = {"application/json"})
+    public CommonResponse saveNFTInfo(@RequestBody MarketRequestDao marketRequest) {
+        return marketRequestService.saveNFTInfo(marketRequest);
     }
 }

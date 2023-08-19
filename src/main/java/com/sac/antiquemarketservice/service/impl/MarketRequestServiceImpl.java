@@ -1,7 +1,7 @@
 package com.sac.antiquemarketservice.service.impl;
 
 import com.sac.antiquemarketservice.dao.MarketCreateRequestDao;
-import com.sac.antiquemarketservice.dao.MarketCreateResponseDao;
+import com.sac.antiquemarketservice.dao.MarketRequestDao;
 import com.sac.antiquemarketservice.enums.ApprovalStatus;
 import com.sac.antiquemarketservice.enums.Response;
 import com.sac.antiquemarketservice.enums.UserRole;
@@ -44,14 +44,14 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     public CommonResponse getMarketRequestList(String status) {
         List<MarketRequest> requestList = status != null ? marketRequestRepository.findByApprovalStatus(ApprovalStatus.valueOf(status)) :
                 marketRequestRepository.findAll();
-        List<MarketCreateResponseDao> responseList = requestList.stream()
+        List<MarketRequestDao> responseList = requestList.stream()
                 .map(this::migrateToResponse)
                 .collect(Collectors.toList());
         return new CommonResponse(Response.SUCCESS, responseList);
     }
 
-    private MarketCreateResponseDao migrateToResponse(MarketRequest marketRequest) {
-        return MarketCreateResponseDao.builder()
+    private MarketRequestDao migrateToResponse(MarketRequest marketRequest) {
+        return MarketRequestDao.builder()
                 .userWalletHash(marketRequest.getUserWalletHash())
                 .artifactName(marketRequest.getArtifactName())
                 .artifactDescription(marketRequest.getArtifactDescription())
@@ -141,7 +141,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     }
 
     @Override
-    public CommonResponse approveMarketRequest(MarketCreateRequestDao marketRequest) {
+    public CommonResponse approveMarketRequest(MarketRequestDao marketRequest) {
         Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByRequestHash(marketRequest.getRequestHash());
         if (!dbRequest.isPresent()) {
             return new CommonResponse(Response.NOT_FOUND);
@@ -152,6 +152,18 @@ public class MarketRequestServiceImpl implements MarketRequestService {
         }
         dbRequest.get().setApprovalStatus(ApprovalStatus.APPROVED);
         dbRequest.get().setApprovedUser(loggedInUser.get());
+        this.marketRequestRepository.save(dbRequest.get());
+        return new CommonResponse(Response.SUCCESS);
+    }
+
+    @Override
+    public CommonResponse saveNFTInfo(MarketRequestDao marketRequest) {
+        Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByRequestHash(marketRequest.getRequestHash());
+        if (!dbRequest.isPresent()) {
+            return new CommonResponse(Response.NOT_FOUND);
+        }
+        dbRequest.get().setNftMarketAddress(marketRequest.getNftMarketAddress());
+        dbRequest.get().setNftTokenId(marketRequest.getNftTokenId());
         this.marketRequestRepository.save(dbRequest.get());
         return new CommonResponse(Response.SUCCESS);
     }

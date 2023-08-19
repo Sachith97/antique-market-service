@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class MarketCreateResponseDao {
+public class MarketRequestDao {
 
     private String userWalletHash;
     private String artifactName;
@@ -22,6 +22,8 @@ public class MarketCreateResponseDao {
     private String imageFourAddress;
     private String imageFiveAddress;
     private String videoAddress;
+    private String nftMarketAddress;
+    private String nftTokenId;
     private String approvedStatus;
     private String requestHash;
 }

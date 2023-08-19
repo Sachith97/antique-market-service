@@ -1,6 +1,7 @@
 package com.sac.antiquemarketservice.service;
 
 import com.sac.antiquemarketservice.dao.MarketCreateRequestDao;
+import com.sac.antiquemarketservice.dao.MarketRequestDao;
 import com.sac.antiquemarketservice.exception.CommonResponse;
 
 /**
@@ -13,5 +14,7 @@ public interface MarketRequestService {
 
     CommonResponse createMarketRequest(MarketCreateRequestDao marketRequest);
 
-    CommonResponse approveMarketRequest(MarketCreateRequestDao marketRequest);
+    CommonResponse approveMarketRequest(MarketRequestDao marketRequest);
+
+    CommonResponse saveNFTInfo(MarketRequestDao marketRequest);
 }
