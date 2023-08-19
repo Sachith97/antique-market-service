@@ -52,6 +52,11 @@ public class MarketRequestController {
         );
     }
 
+    @PostMapping(path = "/withdraw-request", produces = {"application/json"}, consumes = {"application/json"})
+    public CommonResponse withdrawMarketRequest(@RequestBody MarketRequestDao marketRequest) {
+        return marketRequestService.withdrawMarketRequest(marketRequest);
+    }
+
     @PostMapping(path = "/approve", produces = {"application/json"}, consumes = {"application/json"})
     public CommonResponse approveMarketRequest(@RequestBody MarketRequestDao marketRequest) {
         return marketRequestService.approveMarketRequest(marketRequest);

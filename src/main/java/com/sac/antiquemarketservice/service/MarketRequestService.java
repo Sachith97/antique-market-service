@@ -14,6 +14,8 @@ public interface MarketRequestService {
 
     CommonResponse createMarketRequest(MarketCreateRequestDao marketRequest);
 
+    CommonResponse withdrawMarketRequest(MarketRequestDao marketRequest);
+
     CommonResponse approveMarketRequest(MarketRequestDao marketRequest);
 
     CommonResponse saveNFTInfo(MarketRequestDao marketRequest);

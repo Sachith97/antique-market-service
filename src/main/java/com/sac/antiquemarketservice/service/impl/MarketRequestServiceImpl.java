@@ -44,8 +44,8 @@ public class MarketRequestServiceImpl implements MarketRequestService {
 
     @Override
     public CommonResponse getMarketRequestList(String status) {
-        List<MarketRequest> requestList = status != null ? marketRequestRepository.findByApprovalStatus(ApprovalStatus.valueOf(status)) :
-                marketRequestRepository.findAll();
+        List<MarketRequest> requestList = status != null ? marketRequestRepository.findByActiveAndApprovalStatus(Boolean.TRUE, ApprovalStatus.valueOf(status)) :
+                marketRequestRepository.findByActive(Boolean.TRUE);
         List<MarketRequestDao> responseList = requestList.stream()
                 .map(this::migrateToResponse)
                 .collect(Collectors.toList());
@@ -76,7 +76,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
         }
         MarketRequest newMarketRequest = convertToMarketRequest(marketRequest);
         String requestHash = generateHash(newMarketRequest);
-        if (marketRequestRepository.findByRequestHash(requestHash).isPresent()) {
+        if (marketRequestRepository.findByActiveAndRequestHash(Boolean.TRUE, requestHash).isPresent()) {
             return CommonResponse.builder()
                     .isOk(Boolean.FALSE)
                     .responseCode(111)
@@ -100,6 +100,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
 
     private MarketRequest convertToMarketRequest(MarketCreateRequestDao marketRequestDao) {
         return MarketRequest.builder()
+                .active(Boolean.TRUE)
                 .userWalletHash(marketRequestDao.getUserWalletHash())
                 .artifactName(marketRequestDao.getArtifactName())
                 .artifactDescription(marketRequestDao.getArtifactDescription())
@@ -144,8 +145,19 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     }
 
     @Override
+    public CommonResponse withdrawMarketRequest(MarketRequestDao marketRequest) {
+        Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByActiveAndRequestHash(Boolean.TRUE, marketRequest.getRequestHash());
+        if (!dbRequest.isPresent()) {
+            return new CommonResponse(Response.NOT_FOUND);
+        }
+        dbRequest.get().setActive(Boolean.FALSE);
+        this.marketRequestRepository.save(dbRequest.get());
+        return new CommonResponse(Response.SUCCESS);
+    }
+
+    @Override
     public CommonResponse approveMarketRequest(MarketRequestDao marketRequest) {
-        Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByRequestHash(marketRequest.getRequestHash());
+        Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByActiveAndRequestHash(Boolean.TRUE, marketRequest.getRequestHash());
         if (!dbRequest.isPresent()) {
             return new CommonResponse(Response.NOT_FOUND);
         }
@@ -162,7 +174,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
 
     @Override
     public CommonResponse saveNFTInfo(MarketRequestDao marketRequest) {
-        Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByRequestHash(marketRequest.getRequestHash());
+        Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByActiveAndRequestHash(Boolean.TRUE, marketRequest.getRequestHash());
         if (!dbRequest.isPresent()) {
             return new CommonResponse(Response.NOT_FOUND);
         }

@@ -29,6 +29,9 @@ public class MarketRequest implements Serializable {
     @Column(name = "ID")
     private Long id;
 
+    @Column(name = "IS_ACTIVE", columnDefinition = "BIT DEFAULT 1", nullable = false)
+    private Boolean active;
+
     @Column(name = "USER_WALLET_HASH", length = 1000)
     private String userWalletHash;
 

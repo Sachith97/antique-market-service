@@ -40,7 +40,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests().antMatchers(
-                        "/api/v1/auth/login", "/api/v1/market-request/create", "/api/v1/market-request/list/**", "/files/**").permitAll()
+                        "/api/v1/auth/login", "/api/v1/market-request/create", "/api/v1/market-request/list/**", "/files/**",
+                        "/api/v1/market-request/save-nft", "/api/v1/market-request/withdraw-request").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .cors().and()

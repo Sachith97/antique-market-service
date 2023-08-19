@@ -15,7 +15,9 @@ import java.util.Optional;
 @Repository
 public interface MarketRequestRepository extends JpaRepository<MarketRequest, Long> {
 
-    Optional<MarketRequest> findByRequestHash(String requestHash);
+    Optional<MarketRequest> findByActiveAndRequestHash(boolean active, String requestHash);
 
-    List<MarketRequest> findByApprovalStatus(ApprovalStatus approvalStatus);
+    List<MarketRequest> findByActive(boolean active);
+
+    List<MarketRequest> findByActiveAndApprovalStatus(boolean active, ApprovalStatus approvalStatus);
 }
