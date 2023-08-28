@@ -3,6 +3,7 @@ package com.sac.antiquemarketservice.service.impl;
 import com.sac.antiquemarketservice.dao.MarketCreateRequestDao;
 import com.sac.antiquemarketservice.dao.MarketRequestDao;
 import com.sac.antiquemarketservice.enums.ApprovalStatus;
+import com.sac.antiquemarketservice.enums.MarketMethod;
 import com.sac.antiquemarketservice.enums.Response;
 import com.sac.antiquemarketservice.enums.UserRole;
 import com.sac.antiquemarketservice.exception.CommonResponse;
@@ -67,6 +68,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
                 .approvedDate(marketRequest.getApprovedDate() != null ? DateUtil.getStringFormat(marketRequest.getApprovedDate()) : null)
                 .rejectedDate(marketRequest.getRejectedDate() != null ? DateUtil.getStringFormat(marketRequest.getRejectedDate()) : null)
                 .requestHash(marketRequest.getRequestHash())
+                .marketMethod(marketRequest.getMarketMethod())
                 .build();
     }
 
@@ -182,12 +184,29 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     @Override
     public CommonResponse saveNFTInfo(MarketRequestDao marketRequest) {
         Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByActiveAndRequestHash(Boolean.TRUE, marketRequest.getRequestHash());
-        if (!dbRequest.isPresent()) {
+        if (!dbRequest.isPresent() && marketRequest.getMarketMethod().equals(MarketMethod.ANTIQUE_ARTIFACT.getName())) {
             return new CommonResponse(Response.NOT_FOUND);
         }
-        dbRequest.get().setNftMarketAddress(marketRequest.getNftMarketAddress());
-        dbRequest.get().setNftTokenId(marketRequest.getNftTokenId());
-        this.marketRequestRepository.save(dbRequest.get());
+        if (dbRequest.isPresent() && marketRequest.getMarketMethod().equals(MarketMethod.ANTIQUE_ARTIFACT.getName())) {
+            dbRequest.get().setNftMarketAddress(marketRequest.getNftMarketAddress());
+            dbRequest.get().setNftTokenId(marketRequest.getNftTokenId());
+            dbRequest.get().setMarketMethod(marketRequest.getMarketMethod());
+            this.marketRequestRepository.save(dbRequest.get());
+            return new CommonResponse(Response.SUCCESS);
+        }
+        // create new request
+        MarketRequest newMarketRequest = MarketRequest.builder()
+                .active(Boolean.TRUE)
+                .userWalletHash(marketRequest.getUserWalletHash())
+                .artifactName(marketRequest.getArtifactName())
+                .artifactDescription(marketRequest.getArtifactDescription())
+                .nftMarketAddress(marketRequest.getNftMarketAddress())
+                .nftTokenId(marketRequest.getNftTokenId())
+                .marketMethod(marketRequest.getMarketMethod())
+                .approvalStatus(ApprovalStatus.APPROVED)
+                .build();
+        newMarketRequest.setRequestHash(generateHash(newMarketRequest));
+        this.marketRequestRepository.save(newMarketRequest);
         return new CommonResponse(Response.SUCCESS);
     }
 }

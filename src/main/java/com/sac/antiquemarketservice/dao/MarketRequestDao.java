@@ -30,4 +30,5 @@ public class MarketRequestDao {
     private String approvedDate;
     private String rejectedDate;
     private String requestHash;
+    private String marketMethod;
 }
