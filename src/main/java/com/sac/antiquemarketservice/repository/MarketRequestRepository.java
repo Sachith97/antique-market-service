@@ -17,7 +17,7 @@ public interface MarketRequestRepository extends JpaRepository<MarketRequest, Lo
 
     Optional<MarketRequest> findByActiveAndRequestHash(boolean active, String requestHash);
 
-    List<MarketRequest> findByActive(boolean active);
+    List<MarketRequest> findByActiveAndApprovalStatusNot(boolean active, ApprovalStatus approvalStatus);
 
     List<MarketRequest> findByActiveAndApprovalStatus(boolean active, ApprovalStatus approvalStatus);
 }

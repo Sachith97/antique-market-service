@@ -2,6 +2,7 @@ package com.sac.antiquemarketservice.controller;
 
 import com.sac.antiquemarketservice.dao.MarketCreateRequestDao;
 import com.sac.antiquemarketservice.dao.MarketRequestDao;
+import com.sac.antiquemarketservice.enums.ApprovalStatus;
 import com.sac.antiquemarketservice.exception.CommonResponse;
 import com.sac.antiquemarketservice.service.MarketRequestService;
 import org.springframework.web.bind.annotation.*;
@@ -59,7 +60,12 @@ public class MarketRequestController {
 
     @PostMapping(path = "/approve", produces = {"application/json"}, consumes = {"application/json"})
     public CommonResponse approveMarketRequest(@RequestBody MarketRequestDao marketRequest) {
-        return marketRequestService.approveMarketRequest(marketRequest);
+        return marketRequestService.approveMarketRequest(marketRequest, ApprovalStatus.APPROVED);
+    }
+
+    @PostMapping(path = "/reject", produces = {"application/json"}, consumes = {"application/json"})
+    public CommonResponse rejectMarketRequest(@RequestBody MarketRequestDao marketRequest) {
+        return marketRequestService.approveMarketRequest(marketRequest, ApprovalStatus.REJECTED);
     }
 
     @PostMapping(path = "/save-nft", produces = {"application/json"}, consumes = {"application/json"})

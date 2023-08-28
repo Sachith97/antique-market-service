@@ -45,7 +45,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     @Override
     public CommonResponse getMarketRequestList(String status) {
         List<MarketRequest> requestList = status != null ? marketRequestRepository.findByActiveAndApprovalStatus(Boolean.TRUE, ApprovalStatus.valueOf(status)) :
-                marketRequestRepository.findByActive(Boolean.TRUE);
+                marketRequestRepository.findByActiveAndApprovalStatusNot(Boolean.TRUE, ApprovalStatus.REJECTED);
         List<MarketRequestDao> responseList = requestList.stream()
                 .map(this::migrateToResponse)
                 .collect(Collectors.toList());
@@ -65,6 +65,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
                 .videoAddress(marketRequest.getVideoAddress())
                 .approvedStatus(marketRequest.getApprovalStatus().getName())
                 .approvedDate(marketRequest.getApprovedDate() != null ? DateUtil.getStringFormat(marketRequest.getApprovedDate()) : null)
+                .rejectedDate(marketRequest.getRejectedDate() != null ? DateUtil.getStringFormat(marketRequest.getRejectedDate()) : null)
                 .requestHash(marketRequest.getRequestHash())
                 .build();
     }
@@ -156,7 +157,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
     }
 
     @Override
-    public CommonResponse approveMarketRequest(MarketRequestDao marketRequest) {
+    public CommonResponse approveMarketRequest(MarketRequestDao marketRequest, ApprovalStatus approvalStatus) {
         Optional<MarketRequest> dbRequest = this.marketRequestRepository.findByActiveAndRequestHash(Boolean.TRUE, marketRequest.getRequestHash());
         if (!dbRequest.isPresent()) {
             return new CommonResponse(Response.NOT_FOUND);
@@ -165,9 +166,15 @@ public class MarketRequestServiceImpl implements MarketRequestService {
         if (!loggedInUser.isPresent() || !loggedInUser.get().getRole().equals(UserRole.APPROVER.name())) {
             return new CommonResponse(Response.FORBIDDEN);
         }
-        dbRequest.get().setApprovalStatus(ApprovalStatus.APPROVED);
-        dbRequest.get().setApprovedDate(LocalDateTime.now());
-        dbRequest.get().setApprovedUser(loggedInUser.get());
+        dbRequest.get().setApprovalStatus(approvalStatus);
+        if (approvalStatus.equals(ApprovalStatus.APPROVED)) {
+            dbRequest.get().setApprovedDate(LocalDateTime.now());
+            dbRequest.get().setApprovedUser(loggedInUser.get());
+
+        } else if (approvalStatus.equals(ApprovalStatus.REJECTED)) {
+            dbRequest.get().setRejectedDate(LocalDateTime.now());
+            dbRequest.get().setRejectedUser(loggedInUser.get());
+        }
         this.marketRequestRepository.save(dbRequest.get());
         return new CommonResponse(Response.SUCCESS);
     }

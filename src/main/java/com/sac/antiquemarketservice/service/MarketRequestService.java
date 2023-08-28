@@ -2,6 +2,7 @@ package com.sac.antiquemarketservice.service;
 
 import com.sac.antiquemarketservice.dao.MarketCreateRequestDao;
 import com.sac.antiquemarketservice.dao.MarketRequestDao;
+import com.sac.antiquemarketservice.enums.ApprovalStatus;
 import com.sac.antiquemarketservice.exception.CommonResponse;
 
 /**
@@ -16,7 +17,7 @@ public interface MarketRequestService {
 
     CommonResponse withdrawMarketRequest(MarketRequestDao marketRequest);
 
-    CommonResponse approveMarketRequest(MarketRequestDao marketRequest);
+    CommonResponse approveMarketRequest(MarketRequestDao marketRequest, ApprovalStatus approvalStatus);
 
     CommonResponse saveNFTInfo(MarketRequestDao marketRequest);
 }

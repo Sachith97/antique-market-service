@@ -12,7 +12,8 @@ import lombok.Getter;
 public enum ApprovalStatus {
 
     PENDING("PENDING"),
-    APPROVED("APPROVED");
+    APPROVED("APPROVED"),
+    REJECTED("REJECTED");
 
     private final String name;
 }

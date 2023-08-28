@@ -28,5 +28,6 @@ public class MarketRequestDao {
     private String nftTokenId;
     private String approvedStatus;
     private String approvedDate;
+    private String rejectedDate;
     private String requestHash;
 }

@@ -75,9 +75,16 @@ public class MarketRequest implements Serializable {
     @Column(name = "APPROVED_DATE")
     private LocalDateTime approvedDate;
 
+    @Column(name = "REJECTED_DATE")
+    private LocalDateTime rejectedDate;
+
     @ManyToOne
     @JoinColumn(name = "FK_APPROVED_USER")
     private User approvedUser;
+
+    @ManyToOne
+    @JoinColumn(name = "FK_REJECTED_USER")
+    private User rejectedUser;
 
     @Override
     public boolean equals(Object object) {
