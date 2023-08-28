@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,8 +46,11 @@ public class MarketRequestServiceImpl implements MarketRequestService {
 
     @Override
     public CommonResponse getMarketRequestList(String status) {
+        List<ApprovalStatus> ignoreStatusList = new ArrayList<>();
+        ignoreStatusList.add(ApprovalStatus.REJECTED);
+        ignoreStatusList.add(ApprovalStatus.COMPLETED);
         List<MarketRequest> requestList = status != null ? marketRequestRepository.findByActiveAndApprovalStatus(Boolean.TRUE, ApprovalStatus.valueOf(status)) :
-                marketRequestRepository.findByActiveAndApprovalStatusNot(Boolean.TRUE, ApprovalStatus.REJECTED);
+                marketRequestRepository.findByActiveAndApprovalStatusNotIn(Boolean.TRUE, ignoreStatusList);
         List<MarketRequestDao> responseList = requestList.stream()
                 .map(this::migrateToResponse)
                 .collect(Collectors.toList());
@@ -191,6 +195,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
             dbRequest.get().setNftMarketAddress(marketRequest.getNftMarketAddress());
             dbRequest.get().setNftTokenId(marketRequest.getNftTokenId());
             dbRequest.get().setMarketMethod(marketRequest.getMarketMethod());
+            dbRequest.get().setApprovalStatus(ApprovalStatus.COMPLETED);
             this.marketRequestRepository.save(dbRequest.get());
             return new CommonResponse(Response.SUCCESS);
         }
@@ -203,7 +208,7 @@ public class MarketRequestServiceImpl implements MarketRequestService {
                 .nftMarketAddress(marketRequest.getNftMarketAddress())
                 .nftTokenId(marketRequest.getNftTokenId())
                 .marketMethod(marketRequest.getMarketMethod())
-                .approvalStatus(ApprovalStatus.APPROVED)
+                .approvalStatus(ApprovalStatus.COMPLETED)
                 .build();
         newMarketRequest.setRequestHash(generateHash(newMarketRequest));
         this.marketRequestRepository.save(newMarketRequest);

@@ -5,6 +5,7 @@ import com.sac.antiquemarketservice.model.MarketRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +18,7 @@ public interface MarketRequestRepository extends JpaRepository<MarketRequest, Lo
 
     Optional<MarketRequest> findByActiveAndRequestHash(boolean active, String requestHash);
 
-    List<MarketRequest> findByActiveAndApprovalStatusNot(boolean active, ApprovalStatus approvalStatus);
+    List<MarketRequest> findByActiveAndApprovalStatusNotIn(Boolean active, Collection<ApprovalStatus> approvalStatus);
 
     List<MarketRequest> findByActiveAndApprovalStatus(boolean active, ApprovalStatus approvalStatus);
 }

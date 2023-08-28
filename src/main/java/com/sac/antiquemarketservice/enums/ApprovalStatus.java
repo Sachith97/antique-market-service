@@ -13,7 +13,8 @@ public enum ApprovalStatus {
 
     PENDING("PENDING"),
     APPROVED("APPROVED"),
-    REJECTED("REJECTED");
+    REJECTED("REJECTED"),
+    COMPLETED("COMPLETED");
 
     private final String name;
 }

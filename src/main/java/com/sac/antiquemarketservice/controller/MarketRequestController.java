@@ -28,7 +28,7 @@ public class MarketRequestController {
         return marketRequestService.getMarketRequestList(status);
     }
 
-    @PostMapping(path = "/create", produces = {"application/json"})
+    @PostMapping(path = "/create", produces = {"application/json"}, consumes = {"multipart/form-data"})
     public CommonResponse createMarketRequest(
             @RequestParam("userWalletHash") String userWalletHash,
             @RequestParam("artifactName") String artifactName,
